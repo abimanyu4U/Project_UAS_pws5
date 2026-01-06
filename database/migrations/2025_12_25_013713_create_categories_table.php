@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('categories', function (Blueprint $table) {
             $table->id();
-            $table->string('name'); // <--- Tambahkan Baris Ini
+            $table->string('name'); // Kolom untuk nama kategori
             $table->timestamps();
         });
     }

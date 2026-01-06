@@ -2,47 +2,129 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Validator;
 
 class CategoryController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Menampilkan semua kategori beserta produk di dalamnya
      */
-    public function index()
+    public function index(): JsonResponse
     {
-        //
+        // Menggunakan 'with' agar data produk ikut tampil (Relasi)
+        $categories = Category::with('products')->get();
+        return response()->json([
+            'success' => true,
+            'message' => 'Daftar semua kategori',
+            'data'    => $categories
+        ], 200);
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Menyimpan kategori baru
      */
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
-        //
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255|unique:categories',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors'  => $validator->errors()
+            ], 400);
+        }
+
+        $category = Category::create([
+            'name' => $request->name,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Kategori berhasil dibuat',
+            'data'    => $category
+        ], 201);
     }
 
     /**
-     * Display the specified resource.
+     * Menampilkan detail satu kategori
      */
-    public function show(string $id)
+    public function show($id): JsonResponse
     {
-        //
+        $category = Category::with('products')->find($id);
+
+        if (!$category) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Kategori tidak ditemukan'
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data'    => $category
+        ], 200);
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update kategori
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, $id): JsonResponse
     {
-        //
+        $category = Category::find($id);
+
+        if (!$category) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Kategori tidak ditemukan'
+            ], 404);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255|unique:categories,name,' . $id,
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors'  => $validator->errors()
+            ], 400);
+        }
+
+        $category->update([
+            'name' => $request->name,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Kategori berhasil diperbarui',
+            'data'    => $category
+        ], 200);
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Menghapus kategori
      */
-    public function destroy(string $id)
+    public function destroy($id): JsonResponse
     {
-        //
+        $category = Category::find($id);
+
+        if (!$category) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Kategori tidak ditemukan'
+            ], 404);
+        }
+
+        $category->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Kategori berhasil dihapus'
+        ], 200);
     }
 }
