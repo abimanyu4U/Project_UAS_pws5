@@ -1,8 +1,9 @@
 <?php
 
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\CategoryController; // Import Controller Category
-use App\Http\Controllers\ProductController;  // Import Controller Product
+use App\Http\Controllers\CategoryController; 
+use App\Http\Controllers\ProductController;  
+use App\Http\Controllers\TransactionController; // Import Controller Anggota 3
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -12,21 +13,22 @@ use Illuminate\Support\Facades\Route;
 */
 
 // --- AKSES PUBLIK ---
-// Siapa saja bisa mendaftar dan masuk untuk mendapatkan Token
 Route::post('register', [AuthController::class, 'register']);
 Route::post('login', [AuthController::class, 'login']);
 
 
 // --- AKSES TERPROTEKSI (JWT) ---
-// Semua route di dalam grup ini wajib menyertakan 'Bearer Token' di Header Postman
 Route::middleware('auth:api')->group(function () {
     
-    // Fitur Autentikasi (Ketua)
+    // 1. Fitur Autentikasi (Tugas Ketua)
     Route::post('logout', [AuthController::class, 'logout']);
     
-    // Fitur CRUD Resource (Tugas Anggota 2)
-    // apiResource otomatis membuat route: index, store, show, update, destroy
+    // 2. Fitur CRUD Resource (Tugas Anggota 2)
     Route::apiResource('categories', CategoryController::class);
     Route::apiResource('products', ProductController::class);
+
+    // 3. Fitur Transaksi Checkout (Tugas Anggota 3)
+    // Menambahkan route untuk memproses pembelian
+    Route::post('checkout', [TransactionController::class, 'checkout']);
     
 });
