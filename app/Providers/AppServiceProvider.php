@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\URL; // Tambahkan ini agar kode lebih rapi
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -18,10 +19,13 @@ class AppServiceProvider extends ServiceProvider
      * Bootstrap any application services.
      */
     public function boot(): void
-{
-    // Tambahkan ini agar semua link formulir otomatis jadi HTTPS yang aman
-    if (config('app.env') === 'production') {
-        \Illuminate\Support\Facades\URL::forceScheme('https');
+    {
+        /**
+         * Memaksa Laravel menggunakan skema HTTPS saat berada di lingkungan produksi (Railway).
+         * Ini akan memperbaiki error "419 Page Expired" dan peringatan "Informasi tidak aman".
+         */
+        if (config('app.env') === 'production') {
+            URL::forceScheme('https');
+        }
     }
-}
 }
